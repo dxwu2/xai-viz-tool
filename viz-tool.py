@@ -5,7 +5,7 @@ import sys
 import random
 
 def parse():
-    f = open('test_cases/n=3_t=5_output.json')
+    f = open(sys.argv[1])
     data = json.load(f)
     f.close()
 
