@@ -23,6 +23,29 @@ def extract_task_times(tasks):
         d[t["id"]] = (t["start_timepoint"], t["finish_timepoint"]-t["start_timepoint"])
     return d
 
+def random_colors(n):
+    colors = []
+    for i in range(n):
+        red = random.randint(0, 255)
+        green = random.randint(0, 255)
+        blue = random.randint(0, 255)
+
+        # Set alpha value to 50% (0x80 in hex)
+        alpha = 0x80
+
+        # Combine RGB and alpha values into a single integer
+        color = (alpha << 24) + (red << 16) + (green << 8) + blue
+
+        # Convert integer to hex format and remove the leading '0x'
+        hex_color = hex(color)[2:]
+
+        # Pad with zeros if necessary to ensure a six-digit hex code
+        hex_color = hex_color.zfill(6)
+
+        s = '#' + hex_color
+        colors.append(s)
+    return colors
+
 def graph(sol):
     robots = sol["robots"]
     task_dict = extract_task_times(sol["tasks"])
@@ -48,7 +71,7 @@ def graph(sol):
     print('yt:', list(yticks))
     gnt.set_yticks(yticks)
     # Labelling tickes of y-axis
-    robot_names = list(reversed(get_robot_names(robots)))
+    robot_names = get_robot_names(robots)
     # gnt.set_yticklabels(robot_names)
     
     # Setting graph attribute
@@ -56,10 +79,10 @@ def graph(sol):
 
     # draw bars
     bar_height = 9
-    colors = ['#E64646', '#E64646', 'tab:red']
-    number_of_colors = 8
-    colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-             for i in range(number_of_colors)]
+    # number_of_colors = len(robots)
+    # colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+            #  for i in range(number_of_colors)]
+    colors = random_colors(len(robots))
     print(colors)
     for i, r in enumerate(robots):
         schedule = []
@@ -79,16 +102,6 @@ def graph(sol):
         l_dict[robot_names[i]] = colors[i]
     legend_elements = [Patch(facecolor=l_dict[i], label=i) for i in l_dict]
     plt.legend(handles=legend_elements)
-    
-    # Declaring a bar in schedule
-    # gnt.broken_barh([(40, 50)], (30, bar_height), facecolors =('tab:orange'))
-    
-    # # Declaring multiple bars in at same level and same width
-    # gnt.broken_barh([(110, 10), (150, 10)], (10, bar_height),
-    #                         facecolors ='tab:blue')
-    
-    # gnt.broken_barh([(10, 50), (100, 20), (130, 10)], (20, bar_height),
-    #                                 facecolors =('tab:red'))
     
     plt.show()
 
