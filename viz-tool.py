@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import json
 import sys
+import random
 
 def parse():
-    f = open('n=3_t=5_output.json')
+    f = open('test_cases/n=3_t=5_output.json')
     data = json.load(f)
     f.close()
 
@@ -30,7 +32,7 @@ def graph(sol):
     fig, gnt = plt.subplots()
     
     # Setting Y-axis limits
-    y_max = 50
+    y_max = 60
     gnt.set_ylim(0, y_max)
     
     # Setting X-axis limits
@@ -46,14 +48,19 @@ def graph(sol):
     print('yt:', list(yticks))
     gnt.set_yticks(yticks)
     # Labelling tickes of y-axis
-    gnt.set_yticklabels(list(reversed(get_robot_names(robots))))
+    robot_names = list(reversed(get_robot_names(robots)))
+    # gnt.set_yticklabels(robot_names)
     
     # Setting graph attribute
     gnt.grid(True)
 
     # draw bars
     bar_height = 9
-    colors = ['tab:orange', 'tab:blue', 'tab:red']
+    colors = ['#E64646', '#E64646', 'tab:red']
+    number_of_colors = 8
+    colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+             for i in range(number_of_colors)]
+    print(colors)
     for i, r in enumerate(robots):
         schedule = []
 
@@ -66,7 +73,12 @@ def graph(sol):
 
         gnt.broken_barh(schedule, (yticks[i]-bar_height//2, bar_height), facecolors=(colors[i]))
 
-
+    # Legend
+    l_dict = {}
+    for i in range(len(robot_names)):
+        l_dict[robot_names[i]] = colors[i]
+    legend_elements = [Patch(facecolor=l_dict[i], label=i) for i in l_dict]
+    plt.legend(handles=legend_elements)
     
     # Declaring a bar in schedule
     # gnt.broken_barh([(40, 50)], (30, bar_height), facecolors =('tab:orange'))
