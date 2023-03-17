@@ -28,12 +28,16 @@ def extract_task_times(tasks):
 def random_colors(n):
     colors = []
     for i in range(n):
-        red = random.randint(0, 255)
-        green = random.randint(0, 255)
-        blue = random.randint(0, 255)
+        while True:
+            red = random.randint(0, 255)
+            green = random.randint(0, 255)
+            blue = random.randint(0, 255)
+            # prevent white
+            if red+green+blue > 40:
+                break
 
         # Set alpha value to 50% (0x80 in hex)
-        alpha = 0x80
+        alpha = 0xe0
 
         # Combine RGB and alpha values into a single integer
         color = (alpha << 24) + (red << 16) + (green << 8) + blue
@@ -55,6 +59,56 @@ def graph(sol):
 
         # Declaring a figure "gnt"
         fig, gnt = plt.subplots()
+
+        # return list of [x_lo, x_hi, y_lo, y_hi]
+        annot_boxes = []
+        def create_annots(schedule, vert_len):
+            if len(schedule) > 0:
+                for start, dur in schedule:
+                    annot_boxes.append([start, start+dur, vert_len[0], sum(vert_len)])
+
+        # def in_box(x, y):
+
+
+        def update_annot(ind):
+            pos = sc.get_offsets()[ind["ind"][0]]
+            annot.xy = pos
+            text = "{}, {}".format(" ".join(list(map(str,ind["ind"]))), 
+                                " ".join([names[n] for n in ind["ind"]]))
+            annot.set_text(text)
+            annot.get_bbox_patch().set_facecolor(cmap(norm(c[ind["ind"][0]])))
+            annot.get_bbox_patch().set_alpha(0.4)
+
+        def hover(event):
+            if event.inaxes == gnt:
+                x, y = event.xdata, event.ydata
+                if in_box(x, y) is not None:
+                    in_box(x,y).xy = (x, y)
+                    in_box(x,y).set_visible(True)
+
+                # if 40 <= x <= 80 and 40 <= y <= 80:
+                #     annot.xy = (x, y)
+                #     annot.set_visible(True)
+                #     fig.canvas.draw_idle()
+                # else:
+                    # annot.set_visible(False)
+
+            # if event.xdata is not None and event.ydata is not None:
+            #     print(f"Mouse position: ({event.xdata:.2f}, {event.ydata:.2f})")
+            #     print('asdf:', event.inaxes)
+
+
+            # vis = annot.get_visible()
+            # if event.inaxes == gnt:
+            #     cont, ind = sc.contains(event)
+            #     if cont:
+            #         update_annot(ind)
+            #         annot.set_visible(True)
+            #         fig.canvas.draw_idle()
+            #     else:
+            #         if vis:
+            #             annot.set_visible(False)
+            #             fig.canvas.draw_idle()
         
         # Setting Y-axis limits
         y_max = 60
@@ -86,8 +140,20 @@ def graph(sol):
             r_tasks = r["individual_plan"]
             for t in r_tasks:
                 schedule.append(task_dict[t])
+            vert_len = (yticks[i]-bar_height//2, bar_height)
 
-            gnt.broken_barh(schedule, (yticks[i]-bar_height//2, bar_height), facecolors=(colors[i]))
+            gnt.broken_barh(schedule, vert_len, facecolors=(colors[i]))
+            create_annots(schedule, vert_len)
+
+        # create annotations object (hidden initially)
+        # annot = gnt.annotate("hihi", xy=(0,0), xytext=(20,20),textcoords="offset points",
+        #             bbox=dict(boxstyle="round", fc="w"),
+        #             arrowprops=dict(arrowstyle="->"))
+        # annot.set_visible(False)
+
+        # print('sch:', total_schedule)
+        # annots = create_annots(total_schedule, vert_lens)
+        print('annot box:', annot_boxes)
 
         # Legend
         l_dict = {}
@@ -98,6 +164,7 @@ def graph(sol):
 
         plt.title(sys.argv[s_i+1])
     
+    # cid = fig.canvas.mpl_connect('motion_notify_event', hover)
     plt.show()
 
 def __main__():
