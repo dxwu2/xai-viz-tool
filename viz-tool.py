@@ -5,13 +5,18 @@ import sys
 import random
 
 def parse():
+    configs = []
     sols = []
     for i in range(1, len(sys.argv)):
         f = open(sys.argv[1])
-        sols.append(json.load(f)["solution"])
+        configs.append(json.load(f))
         f.close()
 
-    return sols
+        f_sol = open(sys.argv[1][:-5] + '_output.json')
+        sols.append(json.load(f_sol)["solution"])
+        f_sol.close()
+
+    return configs, sols
 
 def get_robot_names(robots):
     names = []
@@ -52,7 +57,17 @@ def random_colors(n):
         colors.append(s)
     return colors
 
-# def generate_explanation(robot, task, )
+def generate_explanation(i):
+    if i == 0:
+        return "Robot closest to starting location of task"
+    elif i == 1:
+        return "Only robot that is available for this task"
+    elif i == 2:
+        return "Only robot that is available for this task"
+    elif i == 3:
+        return "Only robot with the required traits for this task"
+    elif i == 4: 
+        return "Only robot that is available for this task"
 
 def graph(sol):
     for s_i, s in enumerate(sol):
@@ -71,7 +86,7 @@ def graph(sol):
         def create_annots(annot_boxes):
             annots = []
             for i in range(len(annot_boxes)):
-                text = str(i) + " testing sadf jasldkf"
+                text = generate_explanation(i)
                 annots.append(gnt.annotate(text, xy=(0,0), xytext=(20,20),textcoords="offset points",
                 bbox=dict(boxstyle="round", fc="w"),
                 arrowprops=dict(arrowstyle="->")))
@@ -85,50 +100,28 @@ def graph(sol):
                     return annots[i]
             return None
 
+        '''
         def update_annot(ind):
             pos = sc.get_offsets()[ind["ind"][0]]
             annot.xy = pos
             # text = "{}, {}".format(" ".join(list(map(str,ind["ind"]))), 
             #                     " ".join([names[n] for n in ind["ind"]]))
-            text = "ashdhf"
+            text = "ashdhssssf"
             annot.set_text(text)
             annot.get_bbox_patch().set_facecolor(cmap(norm(c[ind["ind"][0]])))
             annot.get_bbox_patch().set_alpha(0.4)
+        '''
 
         def hover(event):
             if event.inaxes == gnt:
                 x, y = event.xdata, event.ydata
                 if in_box(x, y) is not None:
-                    print('1')
-                    print(in_box(x,y))
                     in_box(x,y).xy = (x, y)
                     in_box(x,y).set_visible(True)
                     fig.canvas.draw_idle()
-
-                # if 40 <= x <= 80 and 40 <= y <= 80:
-                #     annot.xy = (x, y)
-                #     annot.set_visible(True)
-                #     fig.canvas.draw_idle()
                 else:
                     for ann in annots:
                         ann.set_visible(False)
-
-            # if event.xdata is not None and event.ydata is not None:
-            #     print(f"Mouse position: ({event.xdata:.2f}, {event.ydata:.2f})")
-            #     print('asdf:', event.inaxes)
-
-
-            # vis = annot.get_visible()
-            # if event.inaxes == gnt:
-            #     cont, ind = sc.contains(event)
-            #     if cont:
-            #         update_annot(ind)
-            #         annot.set_visible(True)
-            #         fig.canvas.draw_idle()
-            #     else:
-            #         if vis:
-            #             annot.set_visible(False)
-            #             fig.canvas.draw_idle()
         
         # Setting Y-axis limits
         y_max = 60
@@ -165,17 +158,7 @@ def graph(sol):
             gnt.broken_barh(schedule, vert_len, facecolors=(colors[i]))
             get_annot_boxes(schedule, vert_len)
 
-        # create annotations object (hidden initially)
-        # annot = gnt.annotate("hihi", xy=(0,0), xytext=(20,20),textcoords="offset points",
-        #             bbox=dict(boxstyle="round", fc="w"),
-        #             arrowprops=dict(arrowstyle="->"))
-        # annot.set_visible(False)
-
-        # print('sch:', total_schedule)
-        # annots = create_annots(total_schedule, vert_lens)
-        print('annot box:', annot_boxes)
         annots = create_annots(annot_boxes)
-        print('annots:', annots)
 
         # Legend
         l_dict = {}
@@ -191,7 +174,7 @@ def graph(sol):
 
 def __main__():
     task_dict = {}
-    sol = parse()
+    configs, sol = parse()
     graph(sol)
 
 __main__()
