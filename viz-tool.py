@@ -52,6 +52,8 @@ def random_colors(n):
         colors.append(s)
     return colors
 
+# def generate_explanation(robot, task, )
+
 def graph(sol):
     for s_i, s in enumerate(sol):
         robots = s["robots"]
@@ -60,21 +62,35 @@ def graph(sol):
         # Declaring a figure "gnt"
         fig, gnt = plt.subplots()
 
-        # return list of [x_lo, x_hi, y_lo, y_hi]
-        annot_boxes = []
-        def create_annots(schedule, vert_len):
+        annot_boxes = [] # list of [x_lo, x_hi, y_lo, y_hi]
+        def get_annot_boxes(schedule, vert_len):
             if len(schedule) > 0:
                 for start, dur in schedule:
                     annot_boxes.append([start, start+dur, vert_len[0], sum(vert_len)])
 
-        # def in_box(x, y):
+        def create_annots(annot_boxes):
+            annots = []
+            for i in range(len(annot_boxes)):
+                text = str(i) + " testing sadf jasldkf"
+                annots.append(gnt.annotate(text, xy=(0,0), xytext=(20,20),textcoords="offset points",
+                bbox=dict(boxstyle="round", fc="w"),
+                arrowprops=dict(arrowstyle="->")))
+                annots[i].set_visible(False)
+            return annots # list of annots
 
+        # returns annot if in box, otherwise returns None
+        def in_box(x, y):
+            for i in range(len(annot_boxes)):
+                if x >= annot_boxes[i][0] and x <= annot_boxes[i][1] and y >= annot_boxes[i][2] and y <= annot_boxes[i][3]:
+                    return annots[i]
+            return None
 
         def update_annot(ind):
             pos = sc.get_offsets()[ind["ind"][0]]
             annot.xy = pos
-            text = "{}, {}".format(" ".join(list(map(str,ind["ind"]))), 
-                                " ".join([names[n] for n in ind["ind"]]))
+            # text = "{}, {}".format(" ".join(list(map(str,ind["ind"]))), 
+            #                     " ".join([names[n] for n in ind["ind"]]))
+            text = "ashdhf"
             annot.set_text(text)
             annot.get_bbox_patch().set_facecolor(cmap(norm(c[ind["ind"][0]])))
             annot.get_bbox_patch().set_alpha(0.4)
@@ -83,15 +99,19 @@ def graph(sol):
             if event.inaxes == gnt:
                 x, y = event.xdata, event.ydata
                 if in_box(x, y) is not None:
+                    print('1')
+                    print(in_box(x,y))
                     in_box(x,y).xy = (x, y)
                     in_box(x,y).set_visible(True)
+                    fig.canvas.draw_idle()
 
                 # if 40 <= x <= 80 and 40 <= y <= 80:
                 #     annot.xy = (x, y)
                 #     annot.set_visible(True)
                 #     fig.canvas.draw_idle()
-                # else:
-                    # annot.set_visible(False)
+                else:
+                    for ann in annots:
+                        ann.set_visible(False)
 
             # if event.xdata is not None and event.ydata is not None:
             #     print(f"Mouse position: ({event.xdata:.2f}, {event.ydata:.2f})")
@@ -143,7 +163,7 @@ def graph(sol):
             vert_len = (yticks[i]-bar_height//2, bar_height)
 
             gnt.broken_barh(schedule, vert_len, facecolors=(colors[i]))
-            create_annots(schedule, vert_len)
+            get_annot_boxes(schedule, vert_len)
 
         # create annotations object (hidden initially)
         # annot = gnt.annotate("hihi", xy=(0,0), xytext=(20,20),textcoords="offset points",
@@ -154,6 +174,8 @@ def graph(sol):
         # print('sch:', total_schedule)
         # annots = create_annots(total_schedule, vert_lens)
         print('annot box:', annot_boxes)
+        annots = create_annots(annot_boxes)
+        print('annots:', annots)
 
         # Legend
         l_dict = {}
@@ -164,7 +186,7 @@ def graph(sol):
 
         plt.title(sys.argv[s_i+1])
     
-    # cid = fig.canvas.mpl_connect('motion_notify_event', hover)
+    cid = fig.canvas.mpl_connect('motion_notify_event', hover)
     plt.show()
 
 def __main__():
