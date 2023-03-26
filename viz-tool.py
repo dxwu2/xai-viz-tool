@@ -32,31 +32,7 @@ def extract_task_times(tasks):
 
 def random_colors(n):
     colors = ['#FF0000', '#FFA500', '#008000', '#0000FF', '#4B0082', '#EE82EE']
-    # for i in range(n):
-        # while True:
-        #     red = random.randint(0, 255)
-        #     green = random.randint(0, 255)
-        #     blue = random.randint(0, 255)
-        #     # prevent white
-        #     if red+green+blue > 100:
-        #         break
-
-        # # Set alpha value to 50% (0x80 in hex)
-        # alpha = 0xe0
-
-        # # Combine RGB and alpha values into a single integer
-        # color = (alpha << 24) + (red << 16) + (green << 8) + blue
-
-        # # Convert integer to hex format and remove the leading '0x'
-        # hex_color = hex(color)[2:]
-
-        # # Pad with zeros if necessary to ensure a six-digit hex code
-        # hex_color = hex_color.zfill(6)
-
-        # s = '#' + hex_color
-        # colors.append(s)
     return random.sample(colors, n)
-    # return colors
 
 def generate_explanation(i):
     if i == 0:
